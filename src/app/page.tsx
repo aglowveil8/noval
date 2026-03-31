@@ -110,6 +110,13 @@ export default function Home() {
 
   return (
     <div className="flex flex-col flex-1">
+      {/* Sale banner */}
+      <div className="bg-emerald-500/10 border-b border-emerald-500/20 text-center py-2 px-4">
+        <p className="text-sm text-emerald-400 font-medium">
+          Amazon Big Spring Sale + Best Buy Tech Fest — Deals up to 59% off
+        </p>
+      </div>
+
       {/* Nav */}
       <header className="sticky top-0 z-50 border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-xl">
         <div className="mx-auto max-w-5xl flex items-center justify-between px-6 h-14">

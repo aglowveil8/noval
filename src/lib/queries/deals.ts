@@ -190,6 +190,21 @@ export async function getFavoritedDeals(userId: string) {
   return favDeals;
 }
 
+export async function getComparableDeals(productSlug: string, excludeDealId: number) {
+  if (!productSlug) return [];
+  return db
+    .select()
+    .from(deals)
+    .where(
+      and(
+        eq(deals.productSlug, productSlug),
+        eq(deals.expired, false),
+        sql`${deals.id} != ${excludeDealId}`
+      )
+    )
+    .orderBy(asc(deals.dealPrice));
+}
+
 export const categories = [
   "All",
   "Laptops",

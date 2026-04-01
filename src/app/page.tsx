@@ -1,6 +1,7 @@
-import { getDeals, getVoteScores, getUserVotes, getUserFavorites } from "@/lib/queries/deals";
+import { getDeals, getVoteScores, getUserVotes, getUserFavorites, getFeaturedDeal } from "@/lib/queries/deals";
 import { auth } from "@/lib/auth";
 import { DealGrid } from "@/components/deals/DealGrid";
+import { DealSpotlight } from "@/components/deals/DealSpotlight";
 import { SignInButton } from "@/components/auth/SignInButton";
 import Link from "next/link";
 
@@ -8,13 +9,14 @@ export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const session = await auth();
-  const [deals, voteScores, userVotes, userFavorites] = await Promise.all([
+  const [deals, voteScores, userVotes, userFavorites, featuredDeal] = await Promise.all([
     getDeals({ sort: "newest" }),
     getVoteScores(),
-    session?.user?.id ? getUserVotes(session.user.id) : Promise.resolve({}),
+    session?.user?.id ? getUserVotes(session.user.id) : Promise.resolve({} as Record<number, number>),
     session?.user?.id
       ? getUserFavorites(session.user.id)
       : Promise.resolve(new Set<number>()),
+    getFeaturedDeal(),
   ]);
 
   const maxDiscount =
@@ -44,6 +46,12 @@ export default async function Home() {
             </span>
           </div>
           <div className="flex items-center gap-3">
+            <Link
+              href="/stores"
+              className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
+            >
+              Stores
+            </Link>
             {session?.user && (
               <>
                 <Link
@@ -69,6 +77,7 @@ export default async function Home() {
       </header>
 
       <main className="mx-auto w-full max-w-5xl px-6 py-8 flex flex-col gap-6">
+        {featuredDeal && <DealSpotlight deal={featuredDeal} />}
         <DealGrid
           deals={deals}
           voteScores={voteScores}

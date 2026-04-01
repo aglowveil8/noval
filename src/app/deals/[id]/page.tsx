@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { auth } from "@/lib/auth";
-import { getDealById, getVoteScores, getUserVotes, getUserFavorites } from "@/lib/queries/deals";
+import { getDealById, getVoteScores, getUserVotes, getUserFavorites, getComparableDeals } from "@/lib/queries/deals";
 import { getCommentsByDealId } from "@/lib/queries/comments";
 import { getPriceHistory } from "@/lib/queries/price-history";
 import { formatPrice, timeAgo } from "@/lib/utils";
@@ -37,6 +37,10 @@ export default async function DealPage({
     ]);
 
   if (!deal) notFound();
+
+  const comparableDeals = deal.productSlug
+    ? await getComparableDeals(deal.productSlug, deal.id)
+    : [];
 
   return (
     <div className="flex flex-col flex-1">
@@ -121,6 +125,39 @@ export default async function DealPage({
           <h3 className="text-lg font-semibold mb-4">Price History</h3>
           <PriceChart history={priceHistoryData} />
         </div>
+
+        {/* Price comparison */}
+        {comparableDeals.length > 0 && (
+          <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-6">
+            <h3 className="text-lg font-semibold mb-4">Compare Prices</h3>
+            <div className="flex flex-col gap-2">
+              {comparableDeals.map((d) => (
+                <Link
+                  key={d.id}
+                  href={`/deals/${d.id}`}
+                  className="flex items-center justify-between p-3 rounded-lg border border-zinc-800 hover:border-zinc-600 transition-colors"
+                >
+                  <div>
+                    <span className="text-sm font-medium text-zinc-200">
+                      {d.store}
+                    </span>
+                    <span className="text-xs text-zinc-500 ml-2">
+                      {d.title}
+                    </span>
+                  </div>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-sm font-bold text-white font-mono">
+                      {formatPrice(Number(d.dealPrice))}
+                    </span>
+                    <span className="text-xs text-emerald-400">
+                      -{d.discount}%
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Comments */}
         <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-6">

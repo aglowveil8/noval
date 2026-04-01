@@ -1,11 +1,21 @@
-import { getDeals } from "@/lib/queries/deals";
+import { getDeals, getVoteScores, getUserVotes, getUserFavorites } from "@/lib/queries/deals";
+import { auth } from "@/lib/auth";
 import { DealGrid } from "@/components/deals/DealGrid";
 import { SignInButton } from "@/components/auth/SignInButton";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const deals = await getDeals({ sort: "newest" });
+  const session = await auth();
+  const [deals, voteScores, userVotes, userFavorites] = await Promise.all([
+    getDeals({ sort: "newest" }),
+    getVoteScores(),
+    session?.user?.id ? getUserVotes(session.user.id) : Promise.resolve({}),
+    session?.user?.id
+      ? getUserFavorites(session.user.id)
+      : Promise.resolve(new Set<number>()),
+  ]);
 
   const maxDiscount =
     deals.length > 0 ? Math.max(...deals.map((d) => d.discount)) : 0;
@@ -25,13 +35,31 @@ export default async function Home() {
         <div className="mx-auto max-w-5xl flex items-center justify-between px-6 h-14">
           <div className="flex items-center gap-3">
             <h1 className="text-lg font-bold tracking-tight">
-              <span className="text-emerald-400">N</span>oval
+              <Link href="/">
+                <span className="text-emerald-400">N</span>oval
+              </Link>
             </h1>
             <span className="hidden sm:inline text-xs text-zinc-600 border-l border-zinc-800 pl-3">
               Tech Deals, Curated Daily
             </span>
           </div>
           <div className="flex items-center gap-3">
+            {session?.user && (
+              <>
+                <Link
+                  href="/favorites"
+                  className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
+                >
+                  Favorites
+                </Link>
+                <Link
+                  href="/submit"
+                  className="text-xs text-emerald-400 hover:text-emerald-300 transition-colors"
+                >
+                  + Submit Deal
+                </Link>
+              </>
+            )}
             <span className="text-xs text-zinc-500 font-mono">
               {deals.length} deals
             </span>
@@ -41,7 +69,12 @@ export default async function Home() {
       </header>
 
       <main className="mx-auto w-full max-w-5xl px-6 py-8 flex flex-col gap-6">
-        <DealGrid deals={deals} />
+        <DealGrid
+          deals={deals}
+          voteScores={voteScores}
+          userVotes={userVotes}
+          userFavorites={Array.from(userFavorites)}
+        />
       </main>
 
       {/* Footer */}

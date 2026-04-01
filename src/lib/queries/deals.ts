@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
-import { deals } from "@/lib/schema";
-import { desc, asc, eq, ilike, or, and, sql } from "drizzle-orm";
+import { deals, votes, favorites } from "@/lib/schema";
+import { desc, asc, eq, ilike, or, and, sql, sum } from "drizzle-orm";
 
 export type DealFilter = {
   category?: string;
@@ -133,6 +133,61 @@ export async function upsertDeal(deal: {
     })
     .returning();
   return result[0];
+}
+
+export async function getVoteScores() {
+  const results = await db
+    .select({
+      dealId: votes.dealId,
+      score: sum(votes.value).mapWith(Number),
+    })
+    .from(votes)
+    .groupBy(votes.dealId);
+
+  const map: Record<number, number> = {};
+  for (const r of results) {
+    map[r.dealId] = r.score ?? 0;
+  }
+  return map;
+}
+
+export async function getUserVotes(userId: string) {
+  const results = await db
+    .select({ dealId: votes.dealId, value: votes.value })
+    .from(votes)
+    .where(eq(votes.userId, userId));
+
+  const map: Record<number, number> = {};
+  for (const r of results) {
+    map[r.dealId] = r.value;
+  }
+  return map;
+}
+
+export async function getUserFavorites(userId: string) {
+  const results = await db
+    .select({ dealId: favorites.dealId })
+    .from(favorites)
+    .where(eq(favorites.userId, userId));
+
+  return new Set(results.map((r) => r.dealId));
+}
+
+export async function getFavoritedDeals(userId: string) {
+  const result = await db
+    .select({ dealId: favorites.dealId })
+    .from(favorites)
+    .where(eq(favorites.userId, userId));
+
+  if (result.length === 0) return [];
+
+  const dealIds = result.map((r) => r.dealId);
+  const favDeals = await db
+    .select()
+    .from(deals)
+    .where(sql`${deals.id} = ANY(${dealIds})`);
+
+  return favDeals;
 }
 
 export const categories = [

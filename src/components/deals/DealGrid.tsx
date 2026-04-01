@@ -8,6 +8,7 @@ import type { Deal } from "@/lib/schema";
 const sortOptions = [
   { value: "newest", label: "Newest" },
   { value: "discount", label: "Biggest Discount" },
+  { value: "popular", label: "Most Popular" },
   { value: "price-low", label: "Price: Low to High" },
   { value: "price-high", label: "Price: High to Low" },
 ];
@@ -27,7 +28,18 @@ const categories = [
   "Networking",
 ];
 
-export function DealGrid({ deals }: { deals: Deal[] }) {
+export function DealGrid({
+  deals,
+  voteScores = {},
+  userVotes = {},
+  userFavorites = [],
+}: {
+  deals: Deal[];
+  voteScores?: Record<number, number>;
+  userVotes?: Record<number, number>;
+  userFavorites?: number[];
+}) {
+  const favSet = useMemo(() => new Set(userFavorites), [userFavorites]);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [sort, setSort] = useState("newest");
   const [search, setSearch] = useState("");
@@ -52,6 +64,11 @@ export function DealGrid({ deals }: { deals: Deal[] }) {
     switch (sort) {
       case "discount":
         results.sort((a, b) => b.discount - a.discount);
+        break;
+      case "popular":
+        results.sort(
+          (a, b) => (voteScores[b.id] ?? 0) - (voteScores[a.id] ?? 0)
+        );
         break;
       case "price-low":
         results.sort((a, b) => Number(a.dealPrice) - Number(b.dealPrice));
@@ -148,7 +165,14 @@ export function DealGrid({ deals }: { deals: Deal[] }) {
       {filteredDeals.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {filteredDeals.map((deal, i) => (
-            <DealCard key={deal.id} deal={deal} index={i} />
+            <DealCard
+              key={deal.id}
+              deal={deal}
+              index={i}
+              score={voteScores[deal.id] ?? 0}
+              userVote={userVotes[deal.id] ?? null}
+              isFavorited={favSet.has(deal.id)}
+            />
           ))}
         </div>
       ) : (

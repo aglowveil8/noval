@@ -95,6 +95,30 @@ export const verificationTokens = pgTable(
   })
 );
 
+// Social tables
+export const favorites = pgTable("favorites", {
+  id: serial("id").primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  dealId: integer("deal_id")
+    .notNull()
+    .references(() => deals.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const votes = pgTable("votes", {
+  id: serial("id").primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  dealId: integer("deal_id")
+    .notNull()
+    .references(() => deals.id, { onDelete: "cascade" }),
+  value: integer("value").notNull(), // 1 or -1
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export type Deal = typeof deals.$inferSelect;
 export type NewDeal = typeof deals.$inferInsert;
 export type PriceHistory = typeof priceHistory.$inferSelect;

@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { DealCard } from "./DealCard";
+import { AdvancedFilters } from "@/components/search/AdvancedFilters";
 import { formatPrice } from "@/lib/utils";
 import type { Deal } from "@/lib/schema";
 
@@ -43,6 +44,12 @@ export function DealGrid({
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [sort, setSort] = useState("newest");
   const [search, setSearch] = useState("");
+  const [advancedFilters, setAdvancedFilters] = useState({
+    priceMin: 0,
+    priceMax: 3000,
+    discountMin: 0,
+    stores: [] as string[],
+  });
 
   const filteredDeals = useMemo(() => {
     let results = [...deals];
@@ -58,6 +65,28 @@ export function DealGrid({
           d.title.toLowerCase().includes(q) ||
           d.description.toLowerCase().includes(q) ||
           d.store.toLowerCase().includes(q)
+      );
+    }
+
+    // Advanced filters
+    if (advancedFilters.priceMin > 0) {
+      results = results.filter(
+        (d) => Number(d.dealPrice) >= advancedFilters.priceMin
+      );
+    }
+    if (advancedFilters.priceMax < 3000) {
+      results = results.filter(
+        (d) => Number(d.dealPrice) <= advancedFilters.priceMax
+      );
+    }
+    if (advancedFilters.discountMin > 0) {
+      results = results.filter(
+        (d) => d.discount >= advancedFilters.discountMin
+      );
+    }
+    if (advancedFilters.stores.length > 0) {
+      results = results.filter((d) =>
+        advancedFilters.stores.includes(d.store)
       );
     }
 
@@ -86,7 +115,7 @@ export function DealGrid({
     }
 
     return results;
-  }, [deals, selectedCategory, sort, search]);
+  }, [deals, selectedCategory, sort, search, advancedFilters, voteScores]);
 
   const totalSaved = useMemo(
     () =>
@@ -122,26 +151,29 @@ export function DealGrid({
         </div>
       </div>
 
-      {/* Search + Sort */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <input
-          type="text"
-          placeholder="Search deals..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 h-10 rounded-lg border border-zinc-800 bg-zinc-900 px-4 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-600 transition-colors"
-        />
-        <select
-          value={sort}
-          onChange={(e) => setSort(e.target.value)}
-          className="h-10 rounded-lg border border-zinc-800 bg-zinc-900 px-3 text-sm text-zinc-300 focus:outline-none focus:border-zinc-600 cursor-pointer"
-        >
-          {sortOptions.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
+      {/* Search + Sort + Filters */}
+      <div className="flex flex-col gap-3">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <input
+            type="text"
+            placeholder="Search deals..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="flex-1 h-10 rounded-lg border border-zinc-800 bg-zinc-900 px-4 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-600 transition-colors"
+          />
+          <select
+            value={sort}
+            onChange={(e) => setSort(e.target.value)}
+            className="h-10 rounded-lg border border-zinc-800 bg-zinc-900 px-3 text-sm text-zinc-300 focus:outline-none focus:border-zinc-600 cursor-pointer"
+          >
+            {sortOptions.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <AdvancedFilters onFiltersChange={setAdvancedFilters} />
       </div>
 
       {/* Category tabs */}

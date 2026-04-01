@@ -17,6 +17,11 @@ export const metadata: Metadata = {
   title: "Noval — Tech Deals",
   description:
     "The best tech deals on the internet, curated daily. Laptops, headphones, monitors, and more.",
+  alternates: {
+    types: {
+      "application/rss+xml": "/feed.xml",
+    },
+  },
 };
 
 export default function RootLayout({

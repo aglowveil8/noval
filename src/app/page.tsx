@@ -1,5 +1,6 @@
 import { getDeals } from "@/lib/queries/deals";
 import { DealGrid } from "@/components/deals/DealGrid";
+import { SignInButton } from "@/components/auth/SignInButton";
 
 export const dynamic = "force-dynamic";
 
@@ -34,6 +35,7 @@ export default async function Home() {
             <span className="text-xs text-zinc-500 font-mono">
               {deals.length} deals
             </span>
+            <SignInButton />
           </div>
         </div>
       </header>

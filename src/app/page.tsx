@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { DealGrid } from "@/components/deals/DealGrid";
 import { DealSpotlight } from "@/components/deals/DealSpotlight";
 import { SignInButton } from "@/components/auth/SignInButton";
+import { NotificationManager } from "@/components/notifications/NotificationManager";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -61,6 +62,12 @@ export default async function Home() {
                   Favorites
                 </Link>
                 <Link
+                  href="/settings/alerts"
+                  className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
+                >
+                  Alerts
+                </Link>
+                <Link
                   href="/submit"
                   className="text-xs text-emerald-400 hover:text-emerald-300 transition-colors"
                 >
@@ -71,6 +78,7 @@ export default async function Home() {
             <span className="text-xs text-zinc-500 font-mono">
               {deals.length} deals
             </span>
+            <NotificationManager />
             <SignInButton />
           </div>
         </div>

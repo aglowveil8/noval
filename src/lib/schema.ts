@@ -119,7 +119,20 @@ export const votes = pgTable("votes", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+export const comments = pgTable("comments", {
+  id: serial("id").primaryKey(),
+  dealId: integer("deal_id")
+    .notNull()
+    .references(() => deals.id, { onDelete: "cascade" }),
+  userId: text("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  body: text("body").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export type Deal = typeof deals.$inferSelect;
 export type NewDeal = typeof deals.$inferInsert;
 export type PriceHistory = typeof priceHistory.$inferSelect;
 export type User = typeof users.$inferSelect;
+export type Comment = typeof comments.$inferSelect;

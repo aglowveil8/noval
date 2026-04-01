@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { formatPrice, timeAgo } from "@/lib/utils";
 import { VoteButtons } from "./VoteButtons";
 import { FavoriteButton } from "./FavoriteButton";
@@ -24,10 +25,8 @@ export function DealCard({
       style={{ animationDelay: `${index * 30}ms`, opacity: 0 }}
     >
       <VoteButtons dealId={deal.id} score={score} userVote={userVote} />
-      <a
-        href={deal.url}
-        target="_blank"
-        rel="noopener noreferrer"
+      <Link
+        href={`/deals/${deal.id}`}
         className="group flex-1 flex flex-col gap-4 min-w-0"
       >
         <div className="flex items-start justify-between gap-3">
@@ -95,7 +94,7 @@ export function DealCard({
             </span>
           </div>
         </div>
-      </a>
+      </Link>
     </div>
   );
 }

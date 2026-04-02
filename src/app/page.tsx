@@ -5,6 +5,7 @@ import { DealSpotlight } from "@/components/deals/DealSpotlight";
 import { SignInButton } from "@/components/auth/SignInButton";
 import { NotificationManager } from "@/components/notifications/NotificationManager";
 import Link from "next/link";
+import Image from "next/image";
 
 export const dynamic = "force-dynamic";
 
@@ -37,11 +38,12 @@ export default async function Home() {
       <header className="sticky top-0 z-50 border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-xl">
         <div className="mx-auto max-w-5xl flex items-center justify-between px-6 h-14">
           <div className="flex items-center gap-3">
-            <h1 className="text-lg font-bold tracking-tight">
-              <Link href="/">
+            <Link href="/" className="flex items-center gap-2">
+              <Image src="/novallogo.png" alt="Noval" width={36} height={36} className="rounded" />
+              <h1 className="text-lg font-bold tracking-tight">
                 <span className="text-emerald-400">N</span>oval
-              </Link>
-            </h1>
+              </h1>
+            </Link>
             <span className="hidden sm:inline text-xs text-zinc-600 border-l border-zinc-800 pl-3">
               Tech Deals, Curated Daily
             </span>

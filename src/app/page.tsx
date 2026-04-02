@@ -29,7 +29,7 @@ export default async function Home() {
       {/* Sale banner */}
       <div className="bg-emerald-500/10 border-b border-emerald-500/20 text-center py-2 px-4">
         <p className="text-sm text-emerald-400 font-medium">
-          Dell Spring Sale + Best Deals from Amazon & Best Buy — Up to{" "}
+          PS5 Price Hike Today — Last chance at old price! Plus Dell Spring Sale & MacBook Air M4 clearance — Up to{" "}
           {maxDiscount}% off
         </p>
       </div>
